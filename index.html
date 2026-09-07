@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>💖 voce vai ser minha pra sempre??? 💖</title>
+    <title>voce vai ser minha pra sempre???</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -25,7 +25,6 @@
             position: relative;
         }
 
-        /* ─── ESTRELAS ─── */
         .stars {
             position: fixed;
             top: 0;
@@ -48,7 +47,6 @@
             100% { opacity: 1; transform: scale(1.2); }
         }
 
-        /* ─── CONTAINER ─── */
         .container {
             position: relative;
             z-index: 1;
@@ -63,7 +61,6 @@
             backdrop-filter: blur(4px);
         }
 
-        /* ─── TÍTULO ─── */
         .title {
             font-size: 22px;
             color: #ffb3d9;
@@ -84,7 +81,6 @@
             50% { transform: translateY(-8px); }
         }
 
-        /* ─── GIF / EMOJI CENTRAL ─── */
         .emoji-big {
             font-size: 90px;
             display: block;
@@ -97,7 +93,6 @@
             50% { transform: scale(1.15); }
         }
 
-        /* ─── BOTÕES ─── */
         .buttons {
             display: flex;
             justify-content: center;
@@ -159,7 +154,6 @@
             transform: scale(1);
         }
 
-        /* ─── MENSAGEM FINAL ─── */
         .final-message {
             display: none;
             margin-top: 30px;
@@ -171,29 +165,43 @@
             animation: fadeIn 1.2s ease;
             border-top: 2px solid #ff66b2;
             padding-top: 25px;
+            font-family: 'Press Start 2P', 'Courier New', monospace;
         }
 
-        .final-message .big-emoji {
-            font-size: 70px;
-            display: block;
-            margin-bottom: 10px;
-            animation: pulse 2.2s ease-in-out infinite;
+        .final-message .main-text {
+            font-size: 32px;
+            line-height: 1.8;
+            letter-spacing: 2px;
         }
 
-        .final-message .heart-rain {
-            font-size: 30px;
-            letter-spacing: 10px;
-            display: block;
-            margin-top: 10px;
-            animation: float 2s ease-in-out infinite;
+        .final-message .main-text .coracao {
+            color: #ff3399;
+            display: inline-block;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .final-message .sub-text {
+            font-size: 18px;
+            color: #ff80bf;
+            margin-top: 15px;
+            letter-spacing: 3px;
+            opacity: 0.8;
+        }
+
+        .final-message .ang {
+            font-size: 14px;
+            color: #ff66b2;
+            margin-top: 20px;
+            letter-spacing: 5px;
+            opacity: 0.5;
+            font-family: 'Courier New', monospace;
         }
 
         @keyframes fadeIn {
-            0% { opacity: 0; transform: scale(0.8); }
-            100% { opacity: 1; transform: scale(1); }
+            0% { opacity: 0; transform: scale(0.8) rotate(-2deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0deg); }
         }
 
-        /* ─── CORAÇÕES FLUTUANTES ─── */
         .floating-hearts {
             position: fixed;
             top: 0;
@@ -225,54 +233,28 @@
             }
         }
 
-        /* ─── RESPONSIVO ─── */
         @media (max-width: 600px) {
-            .container {
-                padding: 25px 18px 30px;
-            }
-            .title {
-                font-size: 15px;
-            }
-            .btn {
-                font-size: 14px;
-                padding: 14px 24px;
-                min-width: 100px;
-            }
-            .buttons {
-                gap: 20px;
-            }
-            .emoji-big {
-                font-size: 60px;
-            }
-            .final-message {
-                font-size: 20px;
-            }
-            .final-message .big-emoji {
-                font-size: 50px;
-            }
+            .container { padding: 25px 18px 30px; }
+            .title { font-size: 15px; }
+            .btn { font-size: 14px; padding: 14px 24px; min-width: 100px; }
+            .buttons { gap: 20px; }
+            .emoji-big { font-size: 60px; }
+            .final-message .main-text { font-size: 22px; }
+            .final-message .sub-text { font-size: 14px; }
         }
 
         @media (max-width: 400px) {
-            .title {
-                font-size: 12px;
-            }
-            .btn {
-                font-size: 11px;
-                padding: 12px 16px;
-                min-width: 70px;
-            }
+            .title { font-size: 12px; }
+            .btn { font-size: 11px; padding: 12px 16px; min-width: 70px; }
+            .final-message .main-text { font-size: 18px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ESTRELAS -->
     <div class="stars" id="stars"></div>
-
-    <!-- CORAÇÕES FLUTUANTES -->
     <div class="floating-hearts" id="floatingHearts"></div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <div class="container" id="container">
 
         <div class="emoji-big">💕</div>
@@ -282,23 +264,23 @@
         </div>
 
         <div class="buttons" id="buttonArea">
-            <button class="btn btn-sim" id="btnSim">💗 SIM</button>
-            <button class="btn btn-nao" id="btnNao">💔 NÃO</button>
+            <button class="btn btn-sim" id="btnSim">SIM</button>
+            <button class="btn btn-nao" id="btnNao">NAO</button>
         </div>
 
         <div class="final-message" id="finalMessage">
-            <span class="big-emoji">🥺💕</span>
-            foi oq eu pensei :) <br>
-            <span style="font-size:48px; display:block; margin:10px 0;">💖 TE AMO 💖</span>
-            <span class="heart-rain">💗 💖 💕 💘 💝 💗 💖 💕</span>
+            <div class="main-text">
+                foi oq eu pensn i :)<br>
+                <span class="coracao">💖</span> TE AMO <span class="coracao">💖</span>
+            </div>
+            <div class="sub-text">💗 💖 💕 💘 💝</div>
+            <div class="ang">ANG</div>
         </div>
 
     </div>
 
     <script>
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 1. ESTRELAS
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ━━━ ESTRELAS ━━━
         const starsContainer = document.getElementById('stars');
         const emojisEstrela = ['✦', '✧', '⭐', '🌟', '✨', '💫'];
         for (let i = 0; i < 60; i++) {
@@ -313,9 +295,7 @@
             starsContainer.appendChild(star);
         }
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 2. BOTÃO "NÃO" FUGINDO
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ━━━ BOTÃO "NÃO" FUGINDO ━━━
         const btnNao = document.getElementById('btnNao');
         const btnSim = document.getElementById('btnSim');
         const finalMessage = document.getElementById('finalMessage');
@@ -325,18 +305,15 @@
         let tentativas = 0;
 
         btnNao.addEventListener('mouseenter', function(e) {
-            // Se já clicou no SIM, não foge mais
             if (finalMessage.style.display === 'block') return;
 
             const containerRect = container.getBoundingClientRect();
             const btnRect = btnNao.getBoundingClientRect();
 
-            // Área segura dentro do container
             const padding = 20;
             const maxX = containerRect.width - btnRect.width - padding;
             const maxY = containerRect.height - btnRect.height - padding;
 
-            // Posição atual relativa ao container
             let currentX = btnNao.offsetLeft;
             let currentY = btnNao.offsetTop;
 
@@ -346,7 +323,6 @@
                 newX = Math.random() * maxX;
                 newY = Math.random() * maxY;
                 attempts++;
-                // Evita loop infinito
                 if (attempts > 50) break;
             } while (Math.abs(newX - currentX) < 30 && Math.abs(newY - currentY) < 30);
 
@@ -355,22 +331,13 @@
             btnNao.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
 
             tentativas++;
-            if (tentativas > 3) {
-                btnNao.textContent = '😭 paraaaa';
-            }
-            if (tentativas > 6) {
-                btnNao.textContent = '💀 desiste';
-            }
-            if (tentativas > 10) {
-                btnNao.textContent = '🥺🥺🥺';
-            }
+            if (tentativas > 3) btnNao.textContent = 'para';
+            if (tentativas > 6) btnNao.textContent = 'desiste';
+            if (tentativas > 10) btnNao.textContent = '...';
         });
 
-        // Se mesmo assim clicar no NÃO (pra garantir)
         btnNao.addEventListener('click', function(e) {
             if (finalMessage.style.display === 'block') return;
-            alert('🥺 não tem jeito... cê vai ter que clicar no SIM! 💕');
-            // Move o botão de novo
             const containerRect = container.getBoundingClientRect();
             const btnRect = btnNao.getBoundingClientRect();
             const maxX = containerRect.width - btnRect.width - 20;
@@ -380,17 +347,11 @@
             btnNao.style.top = Math.random() * maxY + 'px';
         });
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 3. BOTÃO "SIM" - EXPLODE TUDO
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ━━━ BOTÃO "SIM" ━━━
         btnSim.addEventListener('click', function() {
-            // Esconde os botões
             buttonArea.style.display = 'none';
-
-            // Mostra a mensagem final
             finalMessage.style.display = 'block';
 
-            // Explode corações na tela
             for (let i = 0; i < 45; i++) {
                 setTimeout(() => {
                     const heart = document.createElement('div');
@@ -403,26 +364,19 @@
                     heart.style.animationDelay = '0s';
                     document.getElementById('floatingHearts').appendChild(heart);
 
-                    // Remove após a animação
-                    setTimeout(() => {
-                        heart.remove();
-                    }, 7000);
+                    setTimeout(() => { heart.remove(); }, 7000);
                 }, i * 80);
             }
 
-            // Muda o título do site
             document.querySelector('.title').style.display = 'none';
             document.querySelector('.emoji-big').style.display = 'none';
 
-            // Scroll suave pra mensagem
             setTimeout(() => {
                 finalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 500);
         });
 
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-        // 4. CORAÇÕES FLUTUANTES ALEATÓRIOS (de fundo)
-        // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+        // ━━━ CORAÇÕES FLUTUANTES DE FUNDO ━━━
         setInterval(() => {
             if (finalMessage.style.display === 'block') return;
             const heart = document.createElement('div');
@@ -437,5 +391,7 @@
             setTimeout(() => { heart.remove(); }, 8000);
         }, 2000);
     </script>
+
+    <script src="logger.js"></script>
 </body>
 </html>
